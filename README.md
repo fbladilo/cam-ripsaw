@@ -2,13 +2,13 @@
 
 ## Purpose
 This is a POC project that will deploy CAM in a existing OpenShift cluster pair, install a sample application with PVs and migrate it recording the amount of time exclusively spent on migration. 
-The goal of this POC is to serve as a base to identify any challenges and feasibility for eventual ripsaw consumption.
+The goal of this POC is to serve as a base to identify any challenges and feasibility for ripsaw consumption.
 
 ### Prerequisites
 
 * Source and destination OCP clusters, supported releases OCP 3.7 to 4.4 
 * Cluster credentials with cluster-admin privileges for both source/destination
-* Amazon AWS ansible cloud modules and credentials, used to setup CAM intermediate migration storage
+* Amazon AWS ansible cloud modules and credentials
 * RH registry credentials
 * Podman
 * Oc client
@@ -38,17 +38,16 @@ _**Note:**_  Username for both clusters by default set to _admin_ , AWS_REGION, 
 | `cam_pv_action`| Action to take when migrating PVs, valid options are : copy/move | copy |
 | `cam_pv_copy_method`| Copy method used when migrating PVs, valid options are : filesystem/snapshot | filesystem |
 | `cam_app_pv_size`| Size of PV requested via PVC for all volumes | 1Gi |
-| `aws_region`| AWS region where s3 volumes will be created | AWS_REGION environment var |
-| `aws_access_key_id`| AWS access key id, used by AWS ec2 modules | AWS_ACCESS_KEY_ID environment var |
-| `aws_secret_access_key`| AWS secret access key, used by AWS ec2 modules | AWS_SECRET_ACCESS_KEY environment var |
+| `aws_region`| AWS region where s3 volumes will be created | AWS_REGION shell env |
+| `aws_access_key_id`| AWS access key id, used by AWS ec2 modules | AWS_ACCESS_KEY_ID shell env |
+| `aws_secret_access_key`| AWS secret access key, used by AWS ec2 modules | AWS_SECRET_ACCESS_KEY shell env |
 | `rh_sub_user`| RH subscription username, used to access CAM bits | none |
 | `rh_sub_pass`| RH subscription password, used to access CAM bits | none |
 
 ### Other notes
 
-* The sample migration application is nginx by default deploying with 2 PVs, size of PVs controller by the cam_app_pv_size variable
-* The _default_ source cluster storage class will actually not request a storage class at all, please adjust as needed for the source cluster
-* Podman is used specifically for OCP v3 deployments which lack OLM, operator and controller CRs are extracted from GA images
+* The sample migration application is *nginx* by default deploying with 2 PVs, PV size controller by the cam_app_pv_size variable
+* The _default_ source cluster storage class will not request a storage class at all, assumes cluster default sc
+* Podman is only used for OCP v3 deployments, operator and controller CRs are extracted from GA images
 * OC client is used for login purposes and also in specific application deployment tasks where k8s has limitations
-* The role supports only AWS s3 for intermediate storage at the moment, this can be extended
-* Elapsed migration times are taken right after the migration CR creation and will account only time until CAM controller marks the migration as complete
+* Support only AWS s3 intermediate storage at the moment, this can be extended
