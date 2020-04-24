@@ -1,0 +1,30 @@
+- name: "Check CAM velero status"
+  k8s_facts:
+    kind: Pod
+    namespace: "{{ cam_ns }}"
+    label_selectors: "component=velero"
+  register: pod
+  until: "true in (pod | json_query('resources[].status.containerStatuses[].ready'))"
+  retries: 30
+  delay: 10
+
+- name: "Check CAM restic status"
+  k8s_facts:
+    kind: Pod
+    namespace: "{{ cam_ns }}"
+    label_selectors: "name=restic"
+  register: pod
+  until: "true in (pod | json_query('resources[].status.containerStatuses[].ready'))"
+  retries: 30
+  delay: 10
+
+- name: "Check CAM controller status"
+  k8s_facts:
+    kind: Pod
+    namespace: "{{ cam_ns }}"
+    label_selectors: "control-plane=controller-manager"
+  register: pod
+  until: "true in (pod | json_query('resources[].status.containerStatuses[].ready'))"
+  retries: 30
+  delay: 10
+  when: controller_host|bool

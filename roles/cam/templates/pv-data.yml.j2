@@ -1,0 +1,10 @@
+selection:
+{% if cam_pv_action is defined %}
+  action: {{ cam_pv_action }}
+{% endif %}
+{% if cam_pv_copy_method is defined %}
+  copyMethod: {{ cam_pv_copy_method }}
+{% endif %}
+{% if cam_dst_storage_class is defined %}
+  storageClass: {{ cam_dst_storage_class }}
+{% endif %}

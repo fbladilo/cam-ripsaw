@@ -1,0 +1,4 @@
+- name: "Deploy CAM controller"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'controller.yml.j2') }}"

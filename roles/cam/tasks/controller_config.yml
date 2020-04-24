@@ -1,0 +1,28 @@
+- name: "Include controller required vars"
+  include_vars:
+    file: "{{ playbook_dir }}/mig_controller.yml"
+
+- name: "Create source migration cluster definition"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-cluster-local.yml.j2')}}"
+
+- name: "Create SA token on destination cluster"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-sa-secret-remote.yml.j2') }}"
+
+- name: "Create remote migration cluster definition"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-cluster-remote.yml.j2') }}"
+
+- name: "Create migration storage creds"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-storage-creds.yml.j2') }}"
+
+- name: "Create migration storage"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-storage.yml.j2') }}"

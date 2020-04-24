@@ -1,0 +1,8 @@
+- name: "Login to cluster at : {{ api_url }}"
+  shell: "{{ oc_binary }} login -u {{ user }} -p {{ passwd }} {{ api_url }} --insecure-skip-tls-verify=true"
+  register: login
+  retries: 30
+  delay: 10
+  until: login.rc == 0
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"

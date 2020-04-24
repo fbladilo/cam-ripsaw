@@ -1,0 +1,29 @@
+apiVersion: migration.openshift.io/v1alpha1
+kind: MigrationController
+metadata:
+  name: migration-controller
+  namespace: {{ cam_ns }}
+spec:
+  azure_resource_group: ''
+  cluster_name: host
+{% if controller_host|bool is sameas true %}
+  migration_velero: true
+  migration_controller: true
+  migration_ui: true
+{% else %}
+  migration_velero: true
+  migration_controller: false
+  migration_ui: false
+{% endif %}
+  olm_managed: {{ olm }}
+  restic_timeout: {{ cam_controller_restic_timeout }}
+  mig_pv_limit: {{ cam_controller_pv_limit }}
+  mig_pod_limit: {{ cam_controller_pod_limit }}
+  mig_namespace_limit: {{ cam_controller_namespace_limit }}
+{% if cluster_version is defined %}
+{% if '4.1' in cluster_version|string %}
+  deprecated_cors_configuration: true
+{% endif %}
+{% endif %}
+  #To install the controller on Openshift 3 you will need to configure the API endpoint:
+  #mig_ui_cluster_api_endpoint: https://replace-with-openshift-cluster-hostname:8443

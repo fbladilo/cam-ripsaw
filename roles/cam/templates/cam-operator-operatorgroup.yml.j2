@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1alpha2
+kind: OperatorGroup
+metadata:
+  name: {{ cam_ns }}
+  namespace: {{ cam_ns  }}
+spec:  
+  targetNamespaces:
+  - {{ cam_ns  }}

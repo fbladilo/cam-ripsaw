@@ -1,0 +1,27 @@
+apiVersion: migration.openshift.io/v1alpha1
+kind: MigPlan
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: {{ cam_migration_plan_name }}
+  namespace: {{ cam_ns }}
+spec:
+
+  srcMigClusterRef:
+    name: {{ cam_cluster_remote_name }}
+    namespace: {{ cam_ns }}
+
+  destMigClusterRef:
+    name: {{ cam_cluster_host_name }}
+    namespace: {{ cam_ns }}
+
+  migStorageRef:
+    name: {{ cam_storage_name }}
+    namespace: {{ cam_ns }}
+
+  # [!] Change namespaces to adjust which OpenShift namespaces should be migrated from source to destination cluster
+{% if cam_app_ns is string %}
+  namespaces: [ {{ cam_app_ns }} ]
+{% else %}
+  namespaces: {{ cam_app_ns | to_yaml }}
+{% endif %}

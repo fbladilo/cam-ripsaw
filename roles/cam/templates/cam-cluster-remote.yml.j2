@@ -1,0 +1,18 @@
+apiVersion: migration.openshift.io/v1alpha1
+kind: MigCluster
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: {{ cam_cluster_remote_name }}
+  namespace: {{ cam_ns }}
+spec:
+  # [!] Change isHostCluster to 'true' if you'll be running the controller on this cluster.
+  #     Setting 'isHostCluster' to true will bypass using the clusterRef and serviceAccountSecretRef below.
+  isHostCluster: false
+  insecure: true
+
+  serviceAccountSecretRef:
+    name: sa-token-{{ cam_cluster_remote_name }}
+    namespace: {{ cam_ns }}
+
+  url: {{ cam_controller_remote_cluster_url }}

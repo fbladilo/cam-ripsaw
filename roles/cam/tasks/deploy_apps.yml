@@ -1,0 +1,59 @@
+- name: "Check {{ cam_app_ns }} namespace"
+  k8s_facts:
+    kind: Namespace
+    name: "{{ cam_app_ns }}"
+  register: ns
+
+- name: "Create {{ cam_app_ns }} namespace"
+  shell: "{{ oc_binary }} new-project {{ cam_app_ns }} --skip-config-write=true"
+  when: ns.resources | length == 0
+
+- name: "Ensure {{ cam_app_ns }} namespaces are present"
+  k8s_facts:
+    kind: Namespace
+    name: "{{ cam_app_ns }}"
+  register: ns_check
+  until: ns_check.resources | length > 0
+  retries: 6
+  delay: 5
+
+- name: "Deploy {{ cam_app_name }}"
+  k8s:
+    state : present
+    definition: "{{ lookup('template', 'nginx.yml.j2' )}}"
+  register: res
+  until: res is success
+  retries: 2
+  delay: 10
+
+- name: "Check {{ cam_app_name }} status"
+  k8s_facts:
+    kind: Pod
+    namespace: "{{ cam_app_ns }}"
+    label_selectors: "app={{ cam_app_name }}"
+  register: pod
+  until: "true in (pod | json_query('resources[].status.containerStatuses[].ready'))"
+  retries: 12
+  delay: 10
+
+- name: "Upload a sample index html file"
+  shell: "{{ oc_binary }} -n {{ cam_app_ns }} rsh $( {{oc_binary}} get pods -n {{ cam_app_ns }} -o jsonpath='{.items[0].metadata.name}') sh -c 'echo \"<h1>HELLO WORLD</h1>\" > /usr/share/nginx/html/index.html'"
+
+- name: "Obtain {{ cam_app_name }} route"
+  k8s_facts:
+    kind: Route
+    namespace: "{{ cam_app_ns }}"
+    label_selectors: "app={{ cam_app_name }}"
+  register: app_route
+  until: app_route.resources | length > 0
+  retries: 30
+
+- name: "Access the html file"
+  uri:
+    url: http://{{ app_route.resources[0].spec.host }}
+    method: GET
+    status_code: 200
+  register: res
+  retries: 30
+  delay: 10
+  until: res is success

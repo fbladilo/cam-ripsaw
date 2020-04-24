@@ -1,0 +1,23 @@
+- name: "Start remote cluster tasks"
+  block:
+
+    - name: "Define controller SA name"
+      set_fact:
+        controller_sa_name: "{{ 'mig' if cam_version is version_compare('v1.2', '<') else 'migration-controller' }}"
+
+    - name: "Extract remote cluster SA token"
+      shell: "{{ oc_binary }} sa get-token -n {{ cam_ns }} {{ controller_sa_name }} | base64 -w 0"
+      register: oc_sa_output
+
+    - set_fact:
+        sa_token: "{{ oc_sa_output.stdout }}"
+
+    - name: "Extract remote cluster URL from current context"
+      shell: "{{ oc_binary }} whoami --show-server"
+      register: oc_config_output
+
+    - set_fact:
+        remote_cluster_url: "{{ oc_config_output.stdout }}"
+
+    - debug:
+        msg: "Remote cluster URL set to: {{ remote_cluster_url }}"

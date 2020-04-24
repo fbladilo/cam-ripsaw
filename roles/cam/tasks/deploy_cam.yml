@@ -1,0 +1,33 @@
+- debug:
+    var: cluster_type
+
+- name: "Check if {{ cluster_type }} cluster is the controller host"
+  set_fact:
+    controller_host: "{{ 'true' if cam_controller_host == cluster_type else 'false' }}"
+
+- name: "Obtain OCP version for {{ cluster_type }} cluster"
+  include_tasks: get_ocp_version.yml
+
+- name: "Check for OLM support on {{ cluster_type }} cluster"
+  set_fact:
+    olm: "{{ 'false' if cluster_version is version_compare('3.11', '<=') else 'true' }}"
+
+- name: "Print CAM deployment summary on {{ cluster_type }} cluster"
+  include_tasks: deploy_summary.yml
+
+- name: "Deploy CAM operator on {{ cluster_type }} cluster using OLM operator"
+  include_tasks: operator_olm.yml
+  when: olm|bool
+
+- name: "Deploy CAM operator on {{ cluster_type }} cluster using non-OLM operator"
+  include_tasks: operator_non_olm.yml
+  when: not olm|bool
+
+- name: "Check status of CAM operator on {{ cluster_type }} cluster"
+  include_tasks: operator_check.yml
+
+- name: "Deploy CAM on {{ cluster_type }} cluster"
+  include_tasks: controller_deploy.yml
+
+- name: "Check status of CAM controller on {{ cluster_type }} cluster"
+  include_tasks: controller_check.yml

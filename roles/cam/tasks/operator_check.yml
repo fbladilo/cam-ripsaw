@@ -1,0 +1,13 @@
+- name: "Define CAM operator label"
+  set_fact:
+    mig_operator_label: "{{ 'migration-operator' if cam_version is version_compare('v1.1', '<') else 'migration' }}"
+
+- name: "Check status of CAM operator"
+  k8s_facts:
+    kind: Pod
+    namespace: "{{ cam_ns }}"
+    label_selectors: "app={{ mig_operator_label }}"
+  register: pod
+  until: pod.get("resources", []) | length > 0 and true in (pod | json_query('resources[].status.containerStatuses[].ready'))
+  retries: 60
+  delay: 15

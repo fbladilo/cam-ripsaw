@@ -1,0 +1,9 @@
+- name: "Include required vars"
+  include_vars:
+    file: "{{ playbook_dir }}/velero_aws_creds.yml"
+  when: cam_storage_provider == "aws"
+
+- name: Write controller facts to mig_controller.yml
+  template:
+    src: controller_facts_sum.yml.j2
+    dest: "{{ playbook_dir }}/mig_controller.yml"

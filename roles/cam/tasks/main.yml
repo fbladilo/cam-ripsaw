@@ -1,0 +1,36 @@
+- name: "Check required CAM role variables"
+  assert:
+    that:
+      - "{{ item }} != ''"
+    fail_msg: "All required variables must be set for CAM role, please re-check and try again."
+  loop:
+    - cam_src_cluster_api
+    - cam_src_cluster_user
+    - cam_src_cluster_pass
+    - cam_dst_cluster_api
+    - cam_dst_cluster_user
+    - cam_dst_cluster_pass
+
+- name: "Login to source cluster at {{ cam_src_cluster_api }}"
+  include_tasks: login.yml
+  vars:
+    user: "{{ cam_src_cluster_user }}"
+    passwd: "{{ cam_src_cluster_pass }}"
+    api_url: "{{ cam_src_cluster_api }}"
+    kubeconfig: "{{ cam_src_kubeconfig }}"
+
+- name: "Login to destination cluster at {{ cam_dst_cluster_api }}"
+  include_tasks: login.yml
+  vars:
+    user: "{{ cam_dst_cluster_user }}"
+    passwd: "{{ cam_dst_cluster_pass }}"
+    api_url: "{{ cam_dst_cluster_api }}"
+    kubeconfig: "{{ cam_dst_kubeconfig }}"
+
+- name: "Deploy CAM"
+  import_tasks: deploy.yml
+  when: deploy|bool
+
+- name: "Remove CAM"
+  import_tasks: cleanup.yml
+  when: cleanup|bool

@@ -1,0 +1,34 @@
+- name: "Create migration plan"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-migplan.yml.j2') }}"
+
+- debug:
+    msg: "Created migration plan : {{ cam_migration_plan_name }}"
+
+- name: "Process PVs"
+  import_tasks: process_pvs.yml
+
+- name: "Get plan information when ready"
+  k8s_facts:
+    kind: MigPlan
+    api_version: v1alpha1
+    namespace: "{{ cam_ns }}"
+    name: "{{ cam_migration_plan_name }}"
+  register: mig_plan
+  until: mig_plan.resources|length > 0 and (mig_plan.resources[0].get( 'status', {}).get("conditions", {}) | selectattr( 'type', 'equalto', 'Ready') | selectattr( 'status', 'equalto', 'True') | list | length > 0)
+  retries: 10
+  delay: 5
+
+- name: "Execute migration"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-migration.yml.j2') }}"
+    wait: yes
+
+- debug:
+    msg: "Created migration name : {{ cam_migration_name }}"
+
+- name: "Mark migration start"
+  set_fact:
+    mig_start: "{{ lookup('pipe', 'date \"+%F %T\"') }}"

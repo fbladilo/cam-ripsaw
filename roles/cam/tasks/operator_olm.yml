@@ -1,0 +1,15 @@
+- name: "Create {{ cam_ns }} namespace"
+  k8s:
+    name: "{{ cam_ns }}"
+    kind: Namespace
+    state: present
+
+- name: "Create OperatorGroup"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-operator-operatorgroup.yml.j2' ) }}"
+
+- name: "Create operator subscription"
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'cam-operator-subscription.yml.j2' ) }}"

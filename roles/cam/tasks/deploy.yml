@@ -1,0 +1,55 @@
+- name: "Prepare AWS storage"
+  include_tasks: create_aws_storage.yml
+  when: cam_storage_provider == "aws"
+
+- name: "Deploy CAM on source cluster"
+  import_tasks: deploy_cam.yml
+  vars:
+    cluster_type: "source"
+    kubeconfig: "{{ cam_src_kubeconfig }}"
+  environment:
+    KUBECONFIG: "{{ cam_src_kubeconfig }}"
+
+- name: "Deploy CAM on destination cluster"
+  import_tasks: deploy_cam.yml
+  vars:
+    cluster_type: "destination"
+    kubeconfig: "{{ cam_dst_kubeconfig }}"
+  environment:
+    KUBECONFIG: "{{ cam_dst_kubeconfig }}"
+
+- name: "Deploy apps on source cluster"
+  import_tasks: deploy_apps.yml
+  environment:
+    KUBECONFIG: "{{ cam_src_kubeconfig }}"
+
+- name: "Extract remote cluster kubeconfig"
+  set_fact:
+    remote_kubeconfig: "{{ cam_src_kubeconfig if cam_controller_host == 'destination' else cam_dst_kubeconfig }}"
+
+- name: "Prepare remote cluster"
+  import_tasks: prepare_remote_cluster.yml
+  environment:
+    KUBECONFIG: "{{ remote_kubeconfig }}"
+
+- name: "Dump remote cluster facts"
+  include_tasks: dump_controller_facts.yml
+
+- name: "Extract host cluster kubeconfig"
+  set_fact:
+    host_kubeconfig: "{{ cam_dst_kubeconfig if cam_controller_host == 'destination' else cam_src_kubeconfig }}"
+
+- name: "Prepare CAM controller for migration"
+  import_tasks: controller_config.yml
+  environment:
+    KUBECONFIG: "{{ host_kubeconfig }}"
+
+- name: "Execute migration"
+  import_tasks: migrate_apps.yml
+  environment:
+    KUBECONFIG: "{{ host_kubeconfig }}"
+
+- name: "Track migration"
+  import_tasks: migrate_track.yml
+  environment:
+    KUBECONFIG: "{{ host_kubeconfig }}"

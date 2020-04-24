@@ -1,0 +1,7 @@
+- debug: 
+    msg:
+      - "CAM cluster type: {{ cluster_type }}"
+      - "CAM cluster version: {{ cluster_version }}"
+      - "CAM will deploy using OLM : {{ olm }}"
+      - "CAM controller host: {{ controller_host }}"
+      - "CAM version: {{ cam_version }}"
