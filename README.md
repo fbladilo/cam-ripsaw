@@ -41,15 +41,14 @@ _**Note:**_  Username for both clusters by default set to _admin_ , AWS_REGION, 
 | `cam_pv_copy_method`| Copy method used when migrating PVs, valid options are : filesystem/snapshot | filesystem |
 | `cam_app_pv_size`| Size of PVs requested | 1Gi |
 | `aws_region`| AWS region where s3 volumes will be created | AWS_REGION env |
-| `aws_access_key_id`| AWS access key id, used by AWS ec2 modules | AWS_ACCESS_KEY_ID env |
-| `aws_secret_access_key`| AWS secret access key, used by AWS ec2 modules | AWS_SECRET_ACCESS_KEY env |
+| `aws_access_key_id`| AWS access key id, used by AWS modules | AWS_ACCESS_KEY_ID env |
+| `aws_secret_access_key`| AWS secret access key, used by AWS modules | AWS_SECRET_ACCESS_KEY env |
 | `rh_sub_user`| RH subscription username, used to access CAM bits | none |
 | `rh_sub_pass`| RH subscription password, used to access CAM bits | none |
 
 ### Other notes
 
-* The sample migration application is **nginx** by default deploying with 2 PVs, PV size controller by the cam_app_pv_size variable
-* The **default** source cluster storage class will not request a storage class at all, assumes cluster default sc
-* Podman is only used for OCP v3 deployments, operator and controller CRs are extracted from GA images
-* OC client is used for login purposes and serves other special app deployment tasks where k8s has limitations
+* The sample migration application is **nginx** by default deploying with 2 PVs
+* Podman is only used for v3 deployments, operator and controller CRs are extracted from GA images
+* OC client is used for login purposes and serves other special tasks where k8s has limitations
 * Support only AWS s3 intermediate storage at the moment, this can be extended
