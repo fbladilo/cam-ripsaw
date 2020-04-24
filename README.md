@@ -1,12 +1,11 @@
-# CAM ripsaw POC role
+# CAM POC ripsaw role
 
 ## Purpose
-This is a POC project that will install CAM on a existing OpenShift cluster pair, deploy a sample application with PVs and migrate it recording the amount of time exclusively spent on migration. 
-The goal of this POC is to serve as a base to identify any challenges and feasibility for ripsaw consumption.
+The goal of this CAM POC is to serve as a base to identify any challenges and feasibility for ripsaw consumption.
 
 ### Prerequisites
 
-* OCP source and destination clusters, supported releases OCP 3.7 to 4.4 
+* OCP source and destination clusters, supported releases OCP 3.7 to 4.x
 * Cluster admin privileged account for source and destination clusters
 * Amazon AWS ansible cloud modules
 * RH subscription credentials
@@ -14,7 +13,10 @@ The goal of this POC is to serve as a base to identify any challenges and feasib
 * OC client
 * k8s ansible modules
 
-### Installing
+### Overview
+This project will install CAM on an existing OpenShift cluster pair, deploy a sample application workload with PVs on the source cluster and migrates to the destination cluster. The amount of time exclusively spent on the controller **migration** phase is reported.
+
+### Usage
 
 `$ ansible-playbook cam_ripsaw.yml -e cam_src_cluster_api=<src-cluster-api-url> -e cam_src_cluster_pass=<src-cluster-admin-pass> -e cam_dst_cluster_api=<dst-cluster-api-url> -e cam_dst_cluster_pass=<dst-cluster-admin-pass> -e rh_sub_user=<RH registry user> -e rh_sub_pass=<RH registry pass>`
 
@@ -46,8 +48,8 @@ _**Note:**_  Username for both clusters by default set to _admin_ , AWS_REGION, 
 
 ### Other notes
 
-* The sample migration application is *nginx* by default deploying with 2 PVs, PV size controller by the cam_app_pv_size variable
-* The _default_ source cluster storage class will not request a storage class at all, assumes cluster default sc
+* The sample migration application is **nginx** by default deploying with 2 PVs, PV size controller by the cam_app_pv_size variable
+* The **default** source cluster storage class will not request a storage class at all, assumes cluster default sc
 * Podman is only used for OCP v3 deployments, operator and controller CRs are extracted from GA images
-* OC client is used for login purposes and also in specific application deployment tasks where k8s has limitations
+* OC client is used for login purposes and serves other special app deployment tasks where k8s has limitations
 * Support only AWS s3 intermediate storage at the moment, this can be extended
