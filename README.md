@@ -7,11 +7,11 @@ The goal of this POC is to serve as a base to identify any challenges and feasib
 ### Prerequisites
 
 * OCP source and destination clusters, supported releases OCP 3.7 to 4.4 
-* Cluster credentials with cluster-admin privileges for both source/destination
-* Amazon AWS ansible cloud modules and credentials
-* RH registry credentials
+* Cluster admin privileged account for source and destination clusters
+* Amazon AWS ansible cloud modules
+* RH subscription credentials
 * Podman
-* Oc client
+* OC client
 * k8s ansible modules
 
 ### Installing
